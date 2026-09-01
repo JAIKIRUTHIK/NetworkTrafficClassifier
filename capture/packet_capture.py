@@ -1,8 +1,7 @@
 from scapy.all import sniff
-from packet_parser import parse_packet
+from capture.packet_parser import parse_packet
 import csv
 import os
-
 
 CSV_FILE = "data/packets.csv"
 
@@ -26,24 +25,31 @@ def save_records(records):
         writer.writerows(records)
 
 
-print("Starting packet capture...")
-print("Capturing packets for 10 seconds...")
-print()
+def capture_packets(duration=10):
+    print("Starting packet capture...")
+    print(f"Capturing packets for {duration} seconds...")
+    print()
 
-packets = sniff(timeout=10)
+    packets = sniff(timeout=duration)
 
-records = []
+    records = []
 
-for packet in packets:
-    record = parse_packet(packet)
+    for packet in packets:
+        record = parse_packet(packet)
 
-    if record is not None:
-        records.append(record)
+        if record is not None:
+            records.append(record)
 
-save_records(records)
+    save_records(records)
 
-print()
-print("Packet capture completed.")
-print("Total packets captured:", len(packets))
-print("IPv4 records saved:", len(records))
-print("CSV file:", CSV_FILE)
+    print()
+    print("Packet capture completed.")
+    print("Total packets captured:", len(packets))
+    print("IPv4 records saved:", len(records))
+    print("CSV file:", CSV_FILE)
+
+    return records
+
+
+if __name__ == "__main__":
+    capture_packets()
