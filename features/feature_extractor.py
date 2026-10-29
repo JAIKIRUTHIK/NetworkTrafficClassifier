@@ -33,8 +33,8 @@ def extract_features():
                 "total_bytes": total_bytes,
                 "duration": duration,
                 "average_packet_size": float(flow["average_packet_size"]),
-                "packets_per_second": round(packets_per_second, 2),
-                "bytes_per_second": round(bytes_per_second, 2)
+                "packets_per_second": packets_per_second,
+                "bytes_per_second": bytes_per_second
             }
 
             features.append(record)

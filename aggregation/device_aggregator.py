@@ -5,6 +5,25 @@ INPUT_FILE = "data/classified_flows.csv"
 OUTPUT_FILE = "data/device_usage.csv"
 
 
+CATEGORIES = [
+    "HTTPS/Web",
+    "HTTP/Web",
+    "DNS",
+    "DHCP",
+    "NTP",
+    "QUIC",
+    "High Volume HTTPS",
+    "Streaming",
+    "SSDP/UPnP",
+    "Local Network Discovery",
+    "High Volume TCP",
+    "High Volume UDP",
+    "Other TCP",
+    "Other UDP",
+    "Other"
+]
+
+
 def aggregate_devices():
 
     devices = {}
@@ -15,8 +34,8 @@ def aggregate_devices():
 
         for flow in reader:
 
-            source_ip = flow["source_ip"]
-            category = flow["category"]
+            source_ip = flow["source_ip"].strip()
+            category = flow["category"].strip()
 
             total_bytes = int(flow["total_bytes"])
 
@@ -25,22 +44,16 @@ def aggregate_devices():
                 devices[source_ip] = {
                     "device_ip": source_ip,
                     "total_flows": 0,
-                    "total_bytes": 0,
-                    "HTTPS/Web": 0,
-                    "HTTP/Web": 0,
-                    "DNS": 0,
-                    "DHCP": 0,
-                    "SSDP/UPnP": 0,
-                    "Local Network Discovery": 0,
-                    "Other TCP": 0,
-                    "Other UDP": 0
+                    "total_bytes": 0
                 }
+
+                for category_name in CATEGORIES:
+                    devices[source_ip][category_name] = 0
 
             devices[source_ip]["total_flows"] += 1
             devices[source_ip]["total_bytes"] += total_bytes
 
-            if category in devices[source_ip]:
-
+            if category in CATEGORIES:
                 devices[source_ip][category] += total_bytes
 
     return devices
@@ -51,16 +64,8 @@ def save_devices(devices):
     fieldnames = [
         "device_ip",
         "total_flows",
-        "total_bytes",
-        "HTTPS/Web",
-        "HTTP/Web",
-        "DNS",
-        "DHCP",
-        "SSDP/UPnP",
-        "Local Network Discovery",
-        "Other TCP",
-        "Other UDP"
-    ]
+        "total_bytes"
+    ] + CATEGORIES
 
     with open(OUTPUT_FILE, "w", newline="") as file:
 
@@ -72,14 +77,19 @@ def save_devices(devices):
         writer.writeheader()
 
         for device in devices.values():
-
             writer.writerow(device)
 
 
-devices = aggregate_devices()
+def main():
 
-save_devices(devices)
+    devices = aggregate_devices()
 
-print("Device aggregation completed.")
-print("Total devices:", len(devices))
-print("Output file:", OUTPUT_FILE)
+    save_devices(devices)
+
+    print("Device aggregation completed.")
+    print("Total devices:", len(devices))
+    print("Output file:", OUTPUT_FILE)
+
+
+if __name__ == "__main__":
+    main()

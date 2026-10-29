@@ -119,7 +119,7 @@ def save_flows(flows):
                 "start_time": flow["start_time"],
                 "end_time": flow["end_time"],
                 "duration": round(duration, 6),
-                "average_packet_size": round(average_packet_size, 2)
+                "average_packet_size": average_packet_size
             })
 
             flow_id += 1

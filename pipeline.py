@@ -1,50 +1,60 @@
+from pathlib import Path
 import subprocess
 import sys
 
 
-scripts = [
-    ["-m", "capture.packet_capture"],
-    ["-m", "flow.flow_builder"],
-    ["-m", "features.feature_extractor"],
-    ["-m", "classifier.rule_classifier"],
-    ["-m", "analysis.usage_analyzer"],
-    ["-m", "aggregation.device_aggregator"]
+ROOT_DIR = Path(__file__).resolve().parent
+
+
+SCRIPTS = [
+    "capture.packet_capture",
+    "flow.flow_builder",
+    "features.feature_extractor",
+    "classifier.rule_classifier",
+    "analysis.usage_analyzer",
+    "aggregation.device_aggregator"
 ]
 
 
-print()
-print("======================================")
-print("   NETWORK TRAFFIC ANALYSIS PIPELINE")
-print("======================================")
-print()
+def run_pipeline():
+
+    print()
+    print("======================================")
+    print("   NETWORK TRAFFIC ANALYSIS PIPELINE")
+    print("======================================")
+    print()
+
+    for module in SCRIPTS:
+
+        print("--------------------------------------")
+        print("Running:", module)
+        print("--------------------------------------")
+
+        result = subprocess.run(
+            [sys.executable, "-m", module],
+            cwd=ROOT_DIR
+        )
+
+        if result.returncode != 0:
+
+            print()
+            print("ERROR while running:", module)
+            print("Pipeline stopped.")
+            print()
+
+            return False
+
+    print()
+    print("======================================")
+    print("       PIPELINE COMPLETED")
+    print("======================================")
+    print()
+
+    return True
 
 
-for script in scripts:
+if __name__ == "__main__":
+    success = run_pipeline()
 
-    display_name = " ".join(script)
-
-    if script[0] == "-m":
-        display_name = script[1]
-
-    print("--------------------------------------")
-    print("Running:", display_name)
-    print("--------------------------------------")
-
-    result = subprocess.run(
-        [sys.executable] + script
-    )
-
-    if result.returncode != 0:
-
-        print()
-        print("ERROR while running:", display_name)
-        print("Pipeline stopped.")
-
+    if not success:
         sys.exit(1)
-
-
-print()
-print("======================================")
-print("       PIPELINE COMPLETED")
-print("======================================")
-print()
